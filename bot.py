@@ -1,6 +1,20 @@
 import discord
-client = discord.Client()
+from dotenv import load_dotenv, dotenv_values
+import os
 
+
+client = discord.Client()
+intents = discord.Intents.default()
+intents.message_content = True
+client = MyClient(intents=intents)
+global prefix
+
+
+
+
+def change_prefix(new_prefix):
+    global prefix
+    prefix = new_prefix
 
 @client.event
 async def on_ready():
@@ -9,12 +23,36 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    global prefix
     if message.author == client.user:
         return
-    msg = message.content.lower()
-    if (msg.startswith('$hello')):
-        await message.channel.send('Hello!')
+    input = message.content.casefold()
+    if (input.startswith(f"{prefix}prefix")):
+
+        await message.channel.send('hello!')
+
 
     elif (msg.startswith('$superuser')):
 
-client.run(token)
+
+def init():
+    try:
+        key_file = open(".env","r")
+    except FileNotFoundError:
+        print ("No .env API key file given.")
+        user_input = str(input("Please enter an API Key. For help or more information please type and enter 'y' :  "))
+        if (user_input == "y"):
+            help = open('help.txt', 'r')
+            print (help.read())
+            help.close()
+        else:
+            new_key_file = open(".env","x")
+            new_key_file.write(f"API_KEY:{user_input}")
+            new_key_file.close()
+    finally:
+        key_file.close()
+        load_dotenv()
+
+init()
+
+client.run(os.getenv("API_KEY"))
