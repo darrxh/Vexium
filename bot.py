@@ -35,24 +35,19 @@ async def on_message(message):
     elif (msg.startswith('$superuser')):
 
 
-def init():
+def load_key():
     try:
         key_file = open(".env","r")
     except FileNotFoundError:
         print ("No .env API key file given.")
-        user_input = str(input("Please enter an API Key. For help or more information please type and enter 'y' :  "))
-        if (user_input == "y"):
-            help = open('help.txt', 'r')
-            print (help.read())
-            help.close()
-        else:
-            new_key_file = open(".env","x")
-            new_key_file.write(f"API_KEY:{user_input}")
-            new_key_file.close()
+        user_input = str(input("Please enter an API Key. For help or more information please refer to help.txt"))
+        new_key_file = open(".env","x")
+        new_key_file.write(f"API_KEY:{user_input}")
+        new_key_file.close()
     finally:
         key_file.close()
         load_dotenv()
 
-init()
-
+load_key()
 client.run(os.getenv("API_KEY"))
+
