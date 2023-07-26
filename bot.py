@@ -8,8 +8,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = MyClient(intents=intents)
 global prefix
-
-
+global playlist
 
 
 def change_prefix(new_prefix):
@@ -28,9 +27,19 @@ async def on_message(message):
         return
     input = message.content.casefold()
     if (input.startswith(f"{prefix}prefix")):
-
-        await message.channel.send('hello!')
-
+        change_prefix()
+    elif (input.startswith(f"{prefix}jump")):
+        jump_to_song()
+    elif (input.startswith(f"{prefix}skip")):
+        skip_song()
+    elif (input.startswith(f"{prefix}play")):
+        play_song()
+    elif (input.startswith(f"{prefix}stop")):
+        stop_song()
+    elif (input.startswith(f"{prefix}leave")):
+        leave_channel()
+    elif (input.startswith(f"{prefix}queue")):
+        print_queue()
 
     elif (msg.startswith('$superuser')):
 
@@ -47,6 +56,13 @@ def load_key():
     finally:
         key_file.close()
         load_dotenv()
+
+def init():
+    global prefix
+    global playlist
+    prefix = os.getenv("PREFIX")
+    playlist = []
+
 
 load_key()
 client.run(os.getenv("API_KEY"))
