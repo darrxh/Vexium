@@ -2,15 +2,6 @@ import discord
 from dotenv import load_dotenv, dotenv_values
 import os
 
-
-client = discord.Client()
-intents = discord.Intents.default()
-intents.message_content = True
-client = MyClient(intents=intents)
-global prefix
-global playlist
-
-
 def change_prefix(new_prefix):
     global prefix
     prefix = new_prefix
@@ -23,6 +14,8 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global prefix
+    if not (message.content.startswith(prefix)):
+        return
     if message.author == client.user:
         return
     input = message.content.casefold()
@@ -41,7 +34,7 @@ async def on_message(message):
     elif (input.startswith(f"{prefix}queue")):
         print_queue()
 
-    elif (msg.startswith('$superuser')):
+
 
 
 def load_key():
@@ -51,7 +44,7 @@ def load_key():
         print ("No .env API key file given.")
         user_input = str(input("Please enter an API Key. For help or more information please refer to help.txt"))
         new_key_file = open(".env","x")
-        new_key_file.write(f"API_KEY:{user_input}")
+        new_key_file.write(f"API_KEY={user_input}\nPREFIX=+")
         new_key_file.close()
     finally:
         key_file.close()
@@ -64,6 +57,11 @@ def init():
     playlist = []
 
 
+intents = discord.Intents.default()
+intents.message_content = True
+global prefix
+global playlist
+client = discord.Client(intents=intents)
 load_key()
 client.run(os.getenv("API_KEY"))
 
