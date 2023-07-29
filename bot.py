@@ -3,8 +3,14 @@ from dotenv import load_dotenv, dotenv_values
 import os
 
 def change_prefix(new_prefix):
+    if (len(new_prefix) > 1):
+        return ("Prefix must be 1 character")
     global prefix
     prefix = new_prefix
+    try:
+        env_file = open(".env", "w")
+    except FileNotFoundError:
+
 
 @client.event
 async def on_ready():
@@ -19,8 +25,8 @@ async def on_message(message):
     if message.author == client.user:
         return
     input = message.content.casefold()
-    if (input.startswith(f"{prefix}prefix")):
-        change_prefix()
+    if (input.startswith(f"{prefix}prefix ")):
+        await message.channel.send(change_prefix(input[8:(len(input))]))
     elif (input.startswith(f"{prefix}jump")):
         jump_to_song()
     elif (input.startswith(f"{prefix}skip")):
@@ -33,7 +39,6 @@ async def on_message(message):
         leave_channel()
     elif (input.startswith(f"{prefix}queue")):
         print_queue()
-
 
 
 
@@ -56,12 +61,17 @@ def init():
     prefix = os.getenv("PREFIX")
     playlist = []
 
+def main():
+    intents = discord.Intents.default()
+    intents.message_content = True
+    global prefix
+    global playlist
+    client = discord.Client(intents=intents)
+    load_key()
+    client.run(os.getenv("API_KEY"))
 
-intents = discord.Intents.default()
-intents.message_content = True
-global prefix
-global playlist
-client = discord.Client(intents=intents)
-load_key()
-client.run(os.getenv("API_KEY"))
+def test():
 
+
+if __name__ == '__main__':
+    test()
