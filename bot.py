@@ -1,7 +1,53 @@
 import discord
 from discord.ext import commands
+from discord import FFmpegPCAudio
 from dotenv import load_dotenv, dotenv_values, set_key
 import os
+import youtube_dl
+
+class Music(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+
+        @commands.command()
+        async def join(self,ctx):
+            if ctx.author.voice is None:
+                await ctx.send("Not connected to Voice Channel.")
+            voice_channel = ctx.author.voice.channel
+            if ctx.voice_client is None:
+                await voice_channel.connect()
+            else:
+                await ctx.voice_client.move_to(voice_channel)
+
+        @commands.command()
+        async def leave(self,ctx):
+            await ctx.voice_client.disconnect()
+
+        @commands.command()
+        async def play(self,ctx,url):
+            FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+            YDL_OPTIONS = {'format': 'bestaudio'}
+            vc = ctx.voice_client
+
+            with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+                info = ydl.extract_info(url, download=False)
+                url2 = info['formats'][0]['url']
+                source = await discord.FFmpegOpusAudio.from_probe(url2,**FFMPEG_OPTIONS)
+                vc.play(source)
+
+        @commands.command()
+        async def pause(self,ctx):
+            await ctx.voice_client.pause()
+            await ctx.send("Paused ")
+
+        @commands.command()
+        async def resume(self, ctx):
+            await ctx.voice_client.resume()
+            await ctx.send("Resuming ")
+
+def setup(client):
+    client.add_cog(Music(client))
+
 
 
 def change_prefix(new_prefix):
@@ -39,13 +85,17 @@ global prefix
 global playlist
 load_key()
 set_prefix()
-client = commands.Bot(command_prefix=prefix, intents=discord.Intents.default())
+intents = discord.Intents.all()
+intents.members = True
+client = commands.Bot(command_prefix="+", intents=intents)
+
 
 @client.command(pass_context = True)
 async def join(ctx):
     if (ctx.author.voice):
         channel = ctx.message.author.voice.channel
-        await channel.connect()
+        voice = await channel.connect()
+        source = FFmpegPCMAudio("")
     else:
         await ctx.send("You must be in a voice channel to run this command!")
 
@@ -66,7 +116,6 @@ async def prefix(ctx):
     await message.channel.send(change_prefix(input[(input.find(" ") + 1):(len(input))]))
 
 
-"""
 async def on_message(message):
     global prefix
     if not (message.content.startswith(prefix)):
@@ -76,23 +125,9 @@ async def on_message(message):
     input = message.content.casefold()
     if (input.startswith(f"{prefix}prefix ")):
         await message.channel.send(change_prefix(input[(input.find(" ")+1):(len(input))]))
-    elif (input.startswith(f"{prefix}play")):
-        play_song()
-    elif (input.startswith(f"{prefix}stop")):
-        stop_song()
-    elif (input.startswith(f"{prefix}join")):
-        channel = message.author.voice.channel
-        await connect(channel)
-    elif (input.startswith(f"{prefix}leave")):
-        if not discord.VoiceClient.is_connected():
-            await message.channel.send("Not connected to Voice Channel.")
-            return
-        await discord.VoiceClient.disconnect()
-    elif (input.startswith(f"{prefix}skip")):
-        skip_song()
     elif (input.startswith(f"{prefix}jump")):
         jump_to_song()
     elif (input.startswith(f"{prefix}queue")):
         print_queue()
-"""
+
 client.run(os.getenv("API_KEY"))
