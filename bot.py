@@ -4,6 +4,16 @@ from discord import FFmpegPCAudio
 from dotenv import load_dotenv, dotenv_values, set_key
 import os
 import youtube_dl
+global queue
+queue = []
+
+def append_queue(url):
+    global queue
+    queue.append(url)
+
+def pop_queue():
+    global queue
+    queue.pop()
 
 class Music(commands.Cog):
     def __init__(self, client):
@@ -25,6 +35,9 @@ class Music(commands.Cog):
 
         @commands.command()
         async def play(self,ctx,url):
+            if (currently_playing()):
+                append_queue(url)
+
             FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
             YDL_OPTIONS = {'format': 'bestaudio'}
             vc = ctx.voice_client
