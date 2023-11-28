@@ -13,6 +13,8 @@ def append_queue(url):
 
 def pop_queue():
     global queue
+    if (len(queue) == 0):
+        return ("Nothing in Queue!")
     queue.pop()
 
 class Music(commands.Cog):
@@ -46,11 +48,13 @@ class Music(commands.Cog):
                 info = ydl.extract_info(url, download=False)
                 url2 = info['formats'][0]['url']
                 source = await discord.FFmpegOpusAudio.from_probe(url2,**FFMPEG_OPTIONS)
+
+
                 vc.play(source)
 
         @commands.command()
-        async def pause(self,ctx):
             await ctx.voice_client.pause()
+        async def pause(self,ctx):
             await ctx.send("Paused ")
 
         @commands.command()
@@ -62,7 +66,6 @@ def setup(client):
     client.add_cog(Music(client))
 
 
-
 def change_prefix(new_prefix):
     if (len(new_prefix) > 1):
         return ("Prefix must be 1 character")
@@ -70,8 +73,7 @@ def change_prefix(new_prefix):
     prefix = new_prefix
     os.environ["PREFIX"] = prefix
     set_key(".env", "PREFIX", os.environ["PREFIX"])
-    return (f"Prefix changed to '{prefix}'")
-
+    return (f"Prefix changed to '{prefix}'")4 N
 def load_key():
     try:
         key_file = open(".env","r")
