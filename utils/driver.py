@@ -21,6 +21,9 @@ class Driver:
         href_value = search.get_attribute("href")
         return ( f"https://www.youtube.com/{href_value}")
 
+    def top_result_scrape(self):
+        thumbnail = self.driver.find_element(By.CLASSNAME, "ytp-inline-preview-scrim")
 
-    def selenium_driver():
-        pass
+    def selenium_player(self):
+        duration = self.driver.find_element(By.CLASSNAME, "ytp-time-duration")
+
